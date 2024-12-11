@@ -14,5 +14,5 @@ Int main(void) {
 			.filter($f1 at(pos + $0) == cur + 1 $)
 			.sum($f1 score(pos + $0) $);
 	};
-	Ket::println("{}", heads.sum($f1 score($0) $));
+	Ket::println("{}", heads.sum(score));
 }
