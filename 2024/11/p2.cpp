@@ -1,6 +1,6 @@
 Int main(void) {
 	Map<I64, I64> stones = Input("input.txt").readAll().view()
-		.split(' ').map($f1 Tuple{Number::from<I64>($0), 1_i64} $);
+		.split(' ').map($f1 Tuple{$0.getInt(), 1_i64} $);
 	
 	auto blink = [&](void) {
 		Map<I64, I64> next;

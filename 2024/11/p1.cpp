@@ -1,6 +1,6 @@
 Int main(void) {
 	Array<I64> stones = Input("input.txt").readAll().view()
-		.split(' ').map($f1 Number::from<I64>($0) $);
+		.split(' ').map($f1 $0.getInt() $);
 	
 	auto blink = [&](void) {
 		Array<I64> next;
