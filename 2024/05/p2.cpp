@@ -6,11 +6,10 @@ Int main(void) {
 		.map($f1 Tuple{$0[0], $0[1]} $);
 		
 	auto ordered = [&](Array<Size> update) {
-		Set<Size> visited;
+		FlatSet<Size> visited;
 		Array<Size> out;
 		Func<void(Size)> visit = [&](Int node) {
-			if (!update.has(node) || visited.has(node)) return;
-			visited.add(node);
+			if (!update.has(node) || !visited.add(node)) return;
 			rules[node].inspect($a.forEach(visit)$);
 			out.pushFront(node);
 		};

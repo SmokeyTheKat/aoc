@@ -4,7 +4,7 @@ Int main(void) {
 	auto at = $f1 $0.inRange(Vec2I{w,h}) ? SomeRef(map[$0.y][$0.x]) : None() $;
 	Array<Vec2I> heads = Iter::range2D(w, h).filter($f1 at($0) == '0' $);
 	Array<Vec2I> dirs{{1,0},{-1,0},{0,1},{0,-1}};
-	Set<Vec2I> visited;
+	FlatSet<Vec2I> visited;
 	Func<Int(Vec2I)> score = [&](Vec2I pos) -> Int {
 		Char cur = at(pos).value();
 		if (cur == '0') visited.clear();

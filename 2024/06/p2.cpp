@@ -19,7 +19,7 @@ Int main(void) {
 		Array<String> map = omap;
 		auto at = $f(pos) Ref{map[pos.y][pos.x]} $;
 		at(blockPos) = '#';
-		Set<Tuple<Vec2I, Vec2I>> states;
+		FlatSet<Tuple<Vec2I, Vec2I>> states;
 		Vec2I pos = startPos;
 		Vec2I dir{0,-1};
 		while (true) {
