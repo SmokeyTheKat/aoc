@@ -1,3 +1,4 @@
+#include <set>
 Int main(void) {
 	Array<String> map = Input("input.txt").lines();
 	Int h = map.length(), w = map[0].length();
@@ -9,7 +10,7 @@ Int main(void) {
 		{{{ 0, 1}, {-1, 0}}}, // bl
 		{{{-1, 0}, { 0,-1}}}, // tl
 	};
-	FlatSet<Vec2I> visited;
+	Set<Vec2I> visited;
 	Func<Vec2I(Char, Vec2I)> compute = [&](Char type, Vec2I pos) -> Vec2I {
 		if (at(pos) != type) return Vec2I{0,0};
 		if (!visited.add(pos)) return Vec2I{0,0};

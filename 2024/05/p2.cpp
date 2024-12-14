@@ -6,7 +6,7 @@ Int main(void) {
 		.map($f1 Tuple{$0[0], $0[1]} $);
 		
 	auto ordered = [&](Array<Size> update) {
-		FlatSet<Size> visited;
+		Set<Size> visited;
 		Array<Size> out;
 		Func<void(Size)> visit = [&](Int node) {
 			if (!update.has(node) || !visited.add(node)) return;
