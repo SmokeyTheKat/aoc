@@ -8,7 +8,7 @@ Int main(void) {
 	Func<Int(Vec2I)> score = [&](Vec2I pos) -> Int {
 		Char cur = at(pos).value();
 		if (cur == '0') visited.clear();
-		if (!visited.add(pos)) return 0;
+		if (!visited.tryAdd(pos)) return 0;
 		if (cur == '9') return 1;
 		return dirs.range()
 			.filter($f1 at(pos + $0) == cur + 1 $)

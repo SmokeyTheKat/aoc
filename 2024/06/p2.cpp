@@ -27,7 +27,7 @@ Int main(void) {
 			if (!ahead.inRange(Vec2I{w,h})) break;
 			if (at(ahead) == '#') {
 				dir.rotate90CW();
-				if (!states.add(Tuple{pos, dir})) return true;
+				if (!states.tryAdd(Tuple{pos, dir})) return true;
 			} else pos = ahead;
 		}
 		return false;

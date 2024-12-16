@@ -6,7 +6,7 @@ Int main(void) {
 	Set<Vec2I> visited;
 	Func<Vec2I(Char, Vec2I)> compute = [&](Char type, Vec2I pos) -> Vec2I {
 		if (at(pos) != type) return Vec2I{0,0};
-		if (!visited.add(pos)) return Vec2I{0,0};
+		if (!visited.tryAdd(pos)) return Vec2I{0,0};
 		Int perim = udlr.count($f1 at(pos + $0) != type $);
 		return Vec2I{1, perim} + udlr.sum($f1 compute(type, pos + $0) $);
 	};

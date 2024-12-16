@@ -9,7 +9,7 @@ Int main(void) {
 		Set<Size> visited;
 		Array<Size> out;
 		Func<void(Size)> visit = [&](Int node) {
-			if (!update.has(node) || !visited.add(node)) return;
+			if (!update.has(node) || !visited.tryAdd(node)) return;
 			rules[node].inspect($a.forEach(visit)$);
 			out.pushFront(node);
 		};

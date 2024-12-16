@@ -14,7 +14,7 @@ Int main(void) {
 			$case| Vec2I{0, 0} = $e (quads.a += 1, quads) $,
 			$case| Vec2I{1, 0} = $e (quads.b += 1, quads) $,
 			$case| Vec2I{0, 1} = $e (quads.c += 1, quads) $,
-			$case| Vec2I{1, 1} = $e (quads.d += 1, quads) $,
+			$case| Vec2I{1, 1} = $e (quads.d += 1, quads) $
 			)
 		$)
 	;
