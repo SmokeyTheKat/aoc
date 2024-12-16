@@ -1,4 +1,3 @@
-#include <set>
 Int main(void) {
 	Array<String> map = Input("input.txt").lines();
 	Int h = map.length(), w = map[0].length();
