@@ -2,10 +2,10 @@ Int main(void) {
 	Array<String> map = Input("input.txt").lines();
 	Int h = map.length(), w = map[0].length();
 	auto at = $f(pos) Ref{map[pos.y][pos.x]} $;
-	Vec2I start = Iter::range2D(w, h).find($f1 at($0) == 'S' $).value();
-	Vec2I end = Iter::range2D(w, h).find($f1 at($0) == 'E' $).value();
-	at(start) = '.';
-	at(end) = '.';
+	Vec2I startPos = Iter::range2D(w, h).find($f1 at($0) == 'S' $).value();
+	Vec2I endPos = Iter::range2D(w, h).find($f1 at($0) == 'E' $).value();
+	at(startPos) = '.';
+	at(endPos) = '.';
 	Array<Vec2I> dirs = {{0,-1},{0,1},{-1,0},{1,0}};
 
 	Func<Bool(Vec2I)> isCorner = [&](Vec2I pos) -> Bool {
@@ -16,19 +16,16 @@ Int main(void) {
 		return p[0] != -p[1];
 	};
 
+	auto getNeighbors = $f(pos) dirs.range().filter($f(dir) at(pos + dir) == '.' $).collect() $;
 	Map<Vec2I, Array<Vec2I>> corners =
 		Iter::range2D(w-2, h-2)
 		.map($a + Vec2I{1,1}$).filter(isCorner)
-		.map($f(pos)
-			Tuple{
-				pos,
-				dirs.range().filter($f(dir) at(pos + dir) == '.' $).collect()
-			}
-		$);
+		.map($f(pos) Tuple{pos, getNeighbors(pos)} $);
 
 	struct Node {
 		Array<Tuple<Vec2I, Int>> nodes;
 		Vec2I pos, dir;
+		Int cost;
 		Node& addTurnCost(Vec2I dirFrom) {
 			for (auto& [dir, cost] : nodes) {
 				cost += $match (dirFrom) (
@@ -44,56 +41,38 @@ Int main(void) {
 		}
 	};
 
-	auto pathsCosts = [&](Vec2I from, Vec2I dir) -> Array<Tuple<Vec2I, Int>> {
+	auto neighborsAndCost = [&](Vec2I from, Vec2I dir) {
 		Array<Tuple<Vec2I, Int>> nodes;
-		Int cost = 0;
-		from += dir;
-		while (at(from) == '.') {
-			cost += 1;
-			if (isCorner(from)) {
-				nodes += Tuple{from, cost};
-			}
-			from += dir;
+		Int cost = 1;
+		for (from += dir; at(from) == '.'; from += dir, cost += 1) {
+			if (isCorner(from)) nodes += Tuple{from, cost};
 		}
 		return nodes;
 	};
 
-	Array<Node> nodes(SizeHint{corners.length()*2});
+	Array<Node> nodes;
 	for (auto& [pos, paths] : corners) {
-		if (pos == Vec2I{1,13}) {
-			pos.x += 0;
-		}
-		Array<Tuple<Vec2I, Int>> neighbors;
-		for (Vec2I dir : paths) {
-			neighbors += pathsCosts(pos, dir);
-		}
+		Array<Tuple<Vec2I, Int>> neighbors = paths.flatMap($f(dir) neighborsAndCost(pos, dir) $);
 		for (Vec2I dirFrom : dirs) {
-			nodes += Node{neighbors, pos, dirFrom}.addTurnCost(dirFrom);
+			nodes += Node{neighbors, pos, dirFrom, NumberInfo<Int>::max}.addTurnCost(dirFrom);
 		}
 	}
 
-	Array<Int> dist(NumberInfo<Int>::max, nodes.length());
-	Array<Int> q = Iter::range(nodes.length());
-	Int startId = nodes.findIndex($a == Tuple{start, Vec2I{1,0}} $);
-	Int endId = nodes.findIndex($a == Tuple{end, Vec2I{1,0}} $);
-	dist[startId] = 0;
+	Array<Node*> q = nodes.map(Pred::Ref);
+	Node* start = nodes.find($a == Tuple{startPos, Vec2I{1,0}} $).ptr();
+	Node* end = nodes.find($a == Tuple{endPos, Vec2I{1,0}} $).ptr();
+	start->cost = 0;
 
 	while (q.length() > 0) {
-		Int u = q.range().min($f2 dist[$0] < dist[$1] $).value();
+		Node* u = q.range().min($f2 $0->cost < $1->cost $).value();
 		q.remove(u);
-		Node& un = nodes[u];
-		if (un.pos == end) {
-			end.x += 0;
-		}
-		for (auto [pos, cost] : un.nodes) {
-			Int v = nodes.findIndex($a == Tuple{pos, un.dir} $);
+		for (auto [pos, cost] : u->nodes) {
+			Node* v = nodes.find($a == Tuple{pos, u->dir} $).ptr();
 			if (!q.has(v)) continue;
-			Int alt = dist[u] + cost;
-			if (alt < dist[v]) {
-				dist[v] = alt;
-			}
+			Int alt = u->cost + cost;
+			if (alt < v->cost) v->cost = alt;
 		}
 	}
 
-	Ket::println("{}", dist[endId]);
+	Ket::println("{}", end->cost);
 }
