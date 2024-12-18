@@ -8,38 +8,26 @@ Int main(void) {
 	at(endPos) = '.';
 	Array<Vec2I> dirs = {{0,-1},{0,1},{-1,0},{1,0}};
 
-	Func<Bool(Vec2I)> isCorner = [&](Vec2I pos) -> Bool {
-		if (at(pos) != '.') return false;
-		Array<Vec2I> p = dirs.range().filter($f(dir) at(pos + dir) == '.' $);
-		if (p.length() > 2) return true;
-		if (p.length() == 1) return true;
-		return p[0] != -p[1];
-	};
-
-	auto getNeighbors = $f(pos) dirs.range().filter($f(dir) at(pos + dir) == '.' $).collect() $;
-	Map<Vec2I, Array<Vec2I>> corners =
-		Iter::range2D(w-2, h-2)
-		.map($a + Vec2I{1,1}$).filter(isCorner)
-		.map($f(pos) Tuple{pos, getNeighbors(pos)} $);
-
 	struct Node {
 		Array<Tuple<Vec2I, Int>> nodes;
 		Vec2I pos, dir;
 		Int cost;
 		Array<Node*> prev;
 		Node& addTurnCost(Vec2I dirFrom) {
-			for (auto& [dir, cost] : nodes) {
-				cost += $match (dirFrom) (
-					$case| dir = 0,
-					$case| -dir = 2000,
-					$case| _ = 1000
-				);
-			}
+			for (auto& [dir, cost] : nodes) cost += dir == dirFrom ? 0 : 1000;
 			return *this;
 		}
 		Bool operator==(const Tuple<Vec2I, Vec2I>& state) const {
 			return state.a == pos && state.b == dir;
 		}
+	};
+
+	Func<Bool(Vec2I)> isCorner = [&](Vec2I pos) -> Bool {
+		if (at(pos) != '.') return false;
+		Array<Vec2I> p = dirs.range().filter($f(dir) at(pos + dir) == '.' $);
+		if (p.length() > 2) return true;
+		if (p.length() == 1) return true;
+		return p[0] != -p[1];
 	};
 
 	auto neighborsAndCost = [&](Vec2I from, Vec2I dir) {
@@ -52,12 +40,16 @@ Int main(void) {
 	};
 
 	Array<Node> nodes;
-	for (auto& [pos, paths] : corners) {
-		Array<Tuple<Vec2I, Int>> neighbors = paths.flatMap($f(dir) neighborsAndCost(pos, dir) $);
-		for (Vec2I dirFrom : dirs) {
-			nodes += Node{neighbors, pos, dirFrom, NumberInfo<Int>::max}.addTurnCost(dirFrom);
-		}
-	}
+	auto getNeighborDirs = $f(pos) dirs.range().filter($f(dir) at(pos + dir) == '.' $).collect() $;
+	Iter::range2D(w-2, h-2)
+		.map($a + Vec2I{1,1}$).filter(isCorner)
+		.map($f(pos) Tuple{pos, getNeighborDirs(pos)} $)
+		.forEach(Pred::Tuple::Unpack($l(&pos, &paths)
+			Array<Tuple<Vec2I, Int>> neighbors = paths.flatMap($f(dir) neighborsAndCost(pos, dir) $);
+			for (Vec2I dirFrom : dirs) {
+				nodes += Node{neighbors, pos, dirFrom, NumberInfo<Int>::max}.addTurnCost(dirFrom);
+			}
+		$));
 
 	Array<Node*> q = nodes.map(Pred::Ref);
 	Node* start = nodes.find($a == Tuple{startPos, Vec2I{1,0}} $).ptr();
