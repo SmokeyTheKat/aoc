@@ -12,9 +12,9 @@ Int main(void) {
 		Array<Tuple<Vec2I, Int>> nodes;
 		Vec2I pos, dir;
 		Int cost;
-		Node& addTurnCost(Vec2I dirFrom) {
-			for (auto& [dir, cost] : nodes) cost += dir == dirFrom ? 0 : 1000;
-			return *this;
+		Node(Vec2I _pos, Vec2I _dir, const Array<Tuple<Vec2I, Int>>& _nodes)
+		: nodes(_nodes), pos(_pos), dir(_dir), cost(NumberInfo<Int>::max) {
+			for (auto& [dirTo, cost] : nodes) cost += dir == dirTo ? 0 : 1000;
 		}
 		Bool operator==(const Tuple<Vec2I, Vec2I>& state) const {
 			return state.a == pos && state.b == dir;
@@ -39,16 +39,11 @@ Int main(void) {
 	};
 
 	Array<Node> nodes;
-	auto getNeighborDirs = $f(pos) dirs.range().filter($f(dir) at(pos + dir) == '.' $).collect() $;
-	Iter::range2D(w-2, h-2)
-		.map($a + Vec2I{1,1}$).filter(isCorner)
-		.map($f(pos) Tuple{pos, getNeighborDirs(pos)} $)
-		.forEach(Pred::Tuple::Unpack($l(&pos, &paths)
-			Array<Tuple<Vec2I, Int>> neighbors = paths.flatMap($f(dir) neighborsAndCost(pos, dir) $);
-			for (Vec2I dirFrom : dirs) {
-				nodes += Node{neighbors, pos, dirFrom, NumberInfo<Int>::max}.addTurnCost(dirFrom);
-			}
-		$));
+	Iter::range2D(w-2, h-2).map($a + Vec2I{1,1}$).filter(isCorner).forEach($l(pos)
+		Array<Vec2I> paths = dirs.range().filter($f(dir) at(pos + dir) == '.' $).collect();
+		Array<Tuple<Vec2I, Int>> neighbors = paths.flatMap($f(dir) neighborsAndCost(pos, dir) $);
+		for (Vec2I dir : dirs) nodes += Node(pos, dir, neighbors);
+	$);
 
 	Array<Node*> q = nodes.map(Pred::Ref);
 	Node* start = nodes.find($a == Tuple{startPos, Vec2I{1,0}} $).ptr();
