@@ -3,7 +3,7 @@ Int main(void) {
 	Span<String> designs = data;
 	Array<StringView> towels = designs.pop(1)[0].view().split(", ");
 	
-	HashMap<String, Bool> valid;
+	HashMap<StringView, Bool> valid;
 	Func<Bool(StringView)> checkPattern = [&](StringView design) -> Bool {
 		if (valid.has(design)) return valid.get(design).value();
 		if (design.length() == 0) return true;

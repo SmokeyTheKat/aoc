@@ -41,12 +41,9 @@ Int main(void) {
 		return dirs.range().map($a * 2 + n->pos $).filter($f1 at($0) && !at($0)->wall $).map($f1 at($0).ptr()$);
 	};
 
-	Set<Node*> visited;
-	Func<Int(Node*)> walk = [&](Node* node) -> Int {
-		if (!visited.tryAdd(node)) return 0;
-		Int count = cheatsAt(node).map($f(u) node->cost - 2 - u->cost $).count($a >= 100 $);
-		return count + neighborsAt(node).sum(walk);
-	};
-
-	Ket::println("{}", walk(points[0]));
+	Ket::println("{}", 
+		Iter::range2D(w, h).map($f1 at($0).ptr() $)
+			.filter($f1 $0->wall == false $)
+			.sum($f(n) cheatsAt(n).map($f(u) n->cost - 2 - u->cost $).count($a >= 100 $) $)
+	);
 }

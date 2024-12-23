@@ -37,20 +37,20 @@ Int main(void) {
 		}
 	}
 
-	Set<Node*> visited;
-	Func<Int(Node*)> walk = [&](Node* node) -> Int {
-		if (!visited.tryAdd(node)) return 0;
-		Int count = 0;
-		for (Int x = -20; x <= 20; x++) {
-			for (Int y = -20 + Math::abs(x); y <= 20 - Math::abs(x); y++) {
-				Vec2I pos = node->pos + Vec2I{x,y};
-				if (pos.inRange(Vec2I{w,h}) && at(pos)->wall == false) {
-					Int cost = node->cost - (Math::abs(x) + Math::abs(y)) - at(pos)->cost;
-					if (cost >= 100) count += 1;
+	Ket::println("{}", 
+		Iter::range2D(w, h).map($f1 at($0).ptr() $).filter($a->wall == false $)
+		.sum($l(n)
+			Int count = 0;
+			for (Int x = -20; x <= 20; x++) {
+				for (Int y = -20 + Math::abs(x); y <= 20 - Math::abs(x); y++) {
+					Vec2I pos = n->pos + Vec2I{x,y};
+					if (pos.inRange(Vec2I{w,h}) && at(pos)->wall == false) {
+						Int cost = n->cost - (Math::abs(x) + Math::abs(y)) - at(pos)->cost;
+						if (cost >= 100) count += 1;
+					}
 				}
 			}
-		}
-		return count + neighborsAt(node).sum(walk);
-	};
-	Ket::println("{}", walk(points[0]));
+			return count;
+		$)
+	);
 }
